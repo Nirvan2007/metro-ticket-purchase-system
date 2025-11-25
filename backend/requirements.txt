@@ -1,0 +1,23 @@
+Django>=4.2
+django-allauth>=0.61.1
+django-crispy-forms>=2.0
+crispy-bootstrap5>=0.7
+
+python-dotenv>=1.0.0
+
+# Google OAuth + token validation
+requests>=2.31.0
+PyJWT>=2.8.0
+cryptography>=41.0.0
+
+# Email (standard Django SMTP uses built-in libraries)
+# No extra package required unless using specialized APIs
+
+# Database
+psycopg2-binary>=2.9.9
+
+# Production server
+gunicorn>=21.0.0
+
+# Optional: useful timezone utilities
+pytz>=2023.3
