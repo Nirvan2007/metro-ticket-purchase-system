@@ -2,7 +2,10 @@ import os
 import dj_database_url
 from pathlib import Path
 from dotenv import load_dotenv
-load_dotenv(os.path.join(Path(__file__).resolve().parents[1], '.env'))
+
+env_file = os.path.join(Path(__file__).resolve().parents[1], '.env')
+if os.path.exists(env_file):
+    load_dotenv(env_file)
 
 BASE_DIR = Path(__file__).resolve().parents[1]
 SECRET_KEY = os.getenv('SECRET_KEY', 'dev-secret-key')
