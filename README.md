@@ -7,14 +7,17 @@ What's new in Phase 2:
 
 Local dev usage:
 1. Open 'backend' in VS Code
-2. python -m venv .venv
+2. Create Virtual environment
+   ```
+   python -m venv .venv
    source .venv/bin/activate
    pip install -r requirements.txt
-3. copy backend/.env.example -> backend/.env and fill EMAIL and OAuth keys
-4. python manage.py migrate
-5. python manage.py createsuperuser
-6. python manage.py load_stations
-7. python manage.py runserver
+   ```
+4. copy backend/.env.example -> backend/.env and fill EMAIL and OAuth keys
+5. python manage.py migrate
+6. python manage.py createsuperuser
+7. python manage.py load_stations
+8. python manage.py runserver
 
 Notes:
 - OTP expires in 5 minutes.
