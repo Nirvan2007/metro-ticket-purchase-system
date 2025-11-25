@@ -1,9 +1,9 @@
-Metro Ticket Purchasing System - Phase 2 (Option A: strict OTP) scaffold
+Metro Ticket Purchasing System
 
-What's new in Phase 2:
-- Google OAuth integration stubs via django-allauth (configure client id/secret in .env)
-- OTP verification (strict): tickets are only created after the user verifies the OTP sent to their email.
-- Email sending on OTP and on successful ticket purchase (configure SMTP in .env)
+
+Google OAuth integration stubs via django-allauth (configure client id/secret in .env)
+OTP verification (strict): tickets are only created after the user verifies the OTP sent to their email.
+Email sending on OTP and on successful ticket purchase (configure SMTP in .env)
 
 Local dev usage:
 1. Open 'backend' in VS Code
