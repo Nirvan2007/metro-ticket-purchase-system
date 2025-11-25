@@ -15,9 +15,8 @@ Local dev usage:
    ```
 4. copy backend/.env.example -> backend/.env and fill EMAIL and OAuth keys
 5. python manage.py migrate
-6. python manage.py createsuperuser
-7. python manage.py load_stations
-8. python manage.py runserver
+6. python manage.py load_stations
+7. python manage.py runserver
 
 Notes:
 - OTP expires in 5 minutes.
