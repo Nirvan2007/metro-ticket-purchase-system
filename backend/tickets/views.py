@@ -59,6 +59,7 @@ def buy_ticket(request):
         )
         code = str(random.randint(100000, 999999))
         expires = timezone.now() + timedelta(minutes=5)
+        print("code:", code)
         OTP.objects.create(
             purchase=purchase,
             code=code,
@@ -123,14 +124,24 @@ def scanner_view(request):
 
 @login_required
 def scan_ticket_api(request, ticket_id):
-    ticket = get_object_or_404(Ticket, id=ticket_id)
+    try:
+        ticket = Ticket.objects.get(id=ticket_id)
+    except Ticket.DoesNotExist:
+        return JsonResponse({'message': 'Invalid Ticket ID'})
+    #ticket = get_object_or_404(Ticket, id=ticket_id)
     if not request.user.is_staff and ticket.user.id != request.user.id:
-        return render(request, 'tickets/scanner.html', {})
+        return JsonResponse({'message': 'Invalid Ticket ID'})
     action = request.GET.get('action','toggle')
     if action == 'enter':
-        ticket.status = 'IN_USE'
+        if ticket.status == 'ACTIVE':
+            ticket.status = 'IN_USE'
+        else:
+            return JsonResponse({'message': 'Ticket must be in ACTIVE state to enter'})
     elif action == 'exit':
-        ticket.status = 'USED'
+        if ticket.status == 'IN_USE':
+            ticket.status = 'USED'
+        else:
+            return JsonResponse({'message': 'Ticket must be in IN_USE state to exit'})
     else:
         ticket.status = 'USED' if ticket.status != 'USED' else 'ACTIVE'
     ticket.save()
