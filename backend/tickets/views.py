@@ -117,13 +117,15 @@ def ticket_list(request):
     tickets = Ticket.objects.filter(user=request.user).order_by('-created_at')
     return render(request, 'tickets/ticket_list.html', {'tickets': tickets})
 
-@user_passes_test(lambda u: u.is_staff)
+@login_required
 def scanner_view(request):
     return render(request, 'tickets/scanner.html', {})
 
-@user_passes_test(lambda u: u.is_staff)
+@login_required
 def scan_ticket_api(request, ticket_id):
     ticket = get_object_or_404(Ticket, id=ticket_id)
+    if ticket.user.id != request.user.id:
+        return render(request, 'tickets/scanner.html', {})
     action = request.GET.get('action','toggle')
     if action == 'enter':
         ticket.status = 'IN_USE'
