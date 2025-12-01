@@ -124,7 +124,7 @@ def scanner_view(request):
 @login_required
 def scan_ticket_api(request, ticket_id):
     ticket = get_object_or_404(Ticket, id=ticket_id)
-    if ticket.user.id != request.user.id:
+    if not request.user.is_staff and ticket.user.id != request.user.id:
         return render(request, 'tickets/scanner.html', {})
     action = request.GET.get('action','toggle')
     if action == 'enter':
