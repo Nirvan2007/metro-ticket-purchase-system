@@ -1,4 +1,3 @@
-version: '3.8'
 services:
   web:
     build: ./backend
@@ -27,8 +26,10 @@ services:
     volumes:
       - ./nginx:/etc/nginx/conf.d
       - ./backend/static:/static
+      - ./certs:/etc/nginx/certs
     depends_on:
       - web
 
 volumes:
   postgres_data:
+    driver: local

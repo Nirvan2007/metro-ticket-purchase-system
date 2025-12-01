@@ -1,11 +1,11 @@
 import os
-import dj_database_url
+#import dj_database_url
 from pathlib import Path
 from dotenv import load_dotenv
 
 env_file = os.path.join(Path(__file__).resolve().parents[1], '.env')
-if os.path.exists(env_file):
-    load_dotenv(env_file)
+#if os.path.exists(env_file):
+#    load_dotenv(env_file)
 
 BASE_DIR = Path(__file__).resolve().parents[1]
 SECRET_KEY = os.getenv('SECRET_KEY', 'dev-secret-key')
@@ -72,7 +72,7 @@ else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
         }
     }
 
@@ -115,18 +115,4 @@ SOCIALACCOUNT_PROVIDERS = {
     }
 }
 
-DEBUG = os.environ.get("DEBUG", "True") == "True"
-
-if DEBUG:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-        }
-    }
-else:
-    DATABASES = {
-        'default': dj_database_url.config(
-            default=f"postgres://{os.environ['POSTGRES_USER']}:{os.environ['POSTGRES_PASSWORD']}@db:5432/{os.environ['POSTGRES_DB']}"
-        )
-    }
+CSRF_TRUSTED_ORIGINS = ["https://metro.teztravels.com"]
