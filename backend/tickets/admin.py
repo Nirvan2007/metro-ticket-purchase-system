@@ -3,7 +3,7 @@ from .models import Wallet, Station, Ticket, OTP, PurchaseRequest
 
 @admin.register(Station)
 class StationAdmin(admin.ModelAdmin):
-    list_display = ('name', 'lines')
+    list_display = ['name']
 
 @admin.register(Ticket)
 class TicketAdmin(admin.ModelAdmin):
