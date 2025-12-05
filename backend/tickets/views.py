@@ -11,9 +11,11 @@ from django.conf import settings
 import random
 from .forms import VerifyOTPForm
 from tickets.metro_graph import (
+    shortest_path_by_adj,
     build_graph,
     shortest_path_by_name,
     generate_directions,
+    get_direction,
     calc_price_from_path
 )
 def home(request):
@@ -37,29 +39,32 @@ def buy_ticket(request):
                 'stations': stations,
                 'message': message
             })
-        graph = build_graph()
-        path_names = shortest_path_by_name(start_name, end_name, graph)
+        #graph = build_graph()
+        #path_names = shortest_path_by_name(start_name, end_name, graph)
+        path, lines = shortest_path_by_adj(start_obj, end_obj)
 
-        if not path_names:
+        if not path:
             message = 'No path found'
             return render(request, 'tickets/buy_ticket.html', {
                 'stations': stations,
                 'message': message
             })
 
-        price = calc_price_from_path(path_names)
-        directions = generate_directions(path_names)
+        price = calc_price_from_path(path)
+        #directions = generate_directions(path_names)
+        direction = get_direction(path, lines)
 
         purchase = PurchaseRequest.objects.create(
             user=request.user,
             start_name=start_name,
             end_name=end_name,
-            path=path_names,
+            path=path,
+            direction=direction,
             price=price
         )
         code = str(random.randint(100000, 999999))
         expires = timezone.now() + timedelta(minutes=5)
-        print("code:", code)
+        print("code: ", code)
         OTP.objects.create(
             purchase=purchase,
             code=code,
@@ -81,7 +86,7 @@ def buy_ticket(request):
 
         return render(request, 'tickets/otp_sent.html', {
             'purchase': purchase,
-            'directions': directions
+            'directions': direction
         })
 
     return render(request, 'tickets/buy_ticket.html', {

@@ -16,18 +16,29 @@ class Wallet(models.Model):
     def __str__(self):
         return f"Wallet({self.user.username}): {self.balance}"
 
-class Station(models.Model):
+class Line(models.Model):
     name = models.CharField(max_length=200, unique=True)
-    lines = models.JSONField(default=list)
-    positions = models.JSONField(default=list)
     def __str__(self):
         return self.name
+
+class Station(models.Model):
+    name = models.CharField(max_length=200, unique=True)
+    def __str__(self):
+        return self.name
+
+class StationLine(models.Model):
+    station = models.ForeignKey(Station, on_delete=models.CASCADE, related_name='station_station')
+    line = models.ForeignKey(Line, on_delete=models.CASCADE, related_name='station_line')
+    position = models.IntegerField(default=1)
+    def __str__(self):
+        return f"{self.station} ({self.line} -> {self.position})"
 
 class Ticket(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='tickets', null=True, blank=True)
     start = models.ForeignKey(Station, on_delete=models.CASCADE, related_name='tickets_start')
     end = models.ForeignKey(Station, on_delete=models.CASCADE, related_name='tickets_end')
     path = models.JSONField(default=list)
+    direction = models.JSONField(default=list)
     price = models.DecimalField(max_digits=7, decimal_places=2)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='ACTIVE')
     created_at = models.DateTimeField(default=timezone.now)
@@ -40,6 +51,7 @@ class PurchaseRequest(models.Model):
     start_name = models.CharField(max_length=200)
     end_name = models.CharField(max_length=200)
     path = models.JSONField(default=list)
+    direction = models.JSONField(default=list)
     price = models.DecimalField(max_digits=7, decimal_places=2)
     created_at = models.DateTimeField(default=timezone.now)
 
