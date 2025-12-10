@@ -2,6 +2,7 @@
 {% block content %}
 <h2>OTP Sent</h2>
 <p>An OTP has been sent to your registered email to confirm purchase #{{ purchase.id }} for {{ purchase.start_name }} → {{ purchase.end_name }}. The OTP expires in 5 minutes.</p>
+<p>path {{ path }} </p>
 <p>Direction {{ directions }} </p>
 <p><a href="{% url 'tickets:verify_otp' purchase.id %}">Enter OTP</a></p>
 {% endblock %}
