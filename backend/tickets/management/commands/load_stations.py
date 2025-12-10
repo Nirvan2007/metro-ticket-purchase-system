@@ -18,7 +18,7 @@ class Command(BaseCommand):
                 try:
                     station = Station.objects.get(name=st.station_name)
                 except Station.DoesNotExist:
-                    station = Station.objects.create(name=st.station_name, line=line)
+                    station = Station.objects.create(name=st.station_name)
                 StationLine.objects.create(station=station, line=line, position=st.position[i])
                 i = i + 1
         self.stdout.write(self.style.SUCCESS(f'Loaded {len(Stations)} stations.'))

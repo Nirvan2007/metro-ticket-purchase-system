@@ -1,0 +1,9 @@
+{% extends 'tickets/base.html' %}
+{% block content %}
+<h2>Add Line</h2>
+{% if message %}<p style='color:rgb(0, 42, 255)'>{{ message }}</p>{% endif %}
+<form method='post'>{% csrf_token %}
+  <input id='line_name' name='line_name' placeholder='Line Name' />
+  <button type='submit'>Add Line</button>
+</form>
+{% endblock %}

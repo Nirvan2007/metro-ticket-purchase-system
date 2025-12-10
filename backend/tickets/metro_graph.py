@@ -56,7 +56,7 @@ def shortest_path_by_adj(start, stop):
                     neighbor = a
                     visited.append(a.name)
                     L.append((a, path + [a.name], lines + [line.name]))
-    return None
+    return None, None
 
 def get_direction(path, lines):
     direction = []

@@ -8,9 +8,18 @@
   <nav>
     <a href="/">Home</a> |
     {% if user.is_authenticated %}
-      <a href="/buy/">Buy Ticket</a> |
-      <a href="/tickets/">My Tickets</a> |
+      {% if user.is_staff %}
+        <a href="/line/">Add Line</a> |
+        <a href="/station/">Add Station</a> |
+        <a href="/buy-offline/">Buy Ticket Offline</a> |
+        <a href="/manage-line/">Manage Line</a> |
+      {% else %}
+        <a href="/buy/">Buy Ticket</a> |
+        <a href="/tickets/">My Tickets</a> |
+        <a href="/wallet/">Add Money</a> |
+      {% endif %}
       <a href="/scanner/">Scan Ticket</a> |
+      <a href="/accounts/">Manage Profile</a>
       <a href="/accounts/logout/">Logout</a>
     {% else %}
       <a href="/accounts/login/">Login</a>
