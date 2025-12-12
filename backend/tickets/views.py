@@ -18,6 +18,7 @@ from tickets.metro_graph import (
     get_direction,
     calc_price_from_path
 )
+from .admin import get_service_status
 
 def home(request):
     return render(request, 'tickets/home.html', {})
@@ -34,7 +35,7 @@ def buy_ticket(request):
         if start_name == end_name:
             return render(request, 'tickets/buy_ticket.html', {
                 'stations': stations,
-                'message': "Start and End Station cannot be same."
+                'error': "Start and End Station cannot be same."
             })
 
         try:
@@ -44,15 +45,15 @@ def buy_ticket(request):
             message = 'Invalid station names'
             return render(request, 'tickets/buy_ticket.html', {
                 'stations': stations,
-                'message': message
+                'error': message
             })
         path, lines = shortest_path_by_adj(start_obj, end_obj)
 
         if not path:
-            message = 'No path found'
+            error = f'No path found between {start_name} -> {end_name}.'
             return render(request, 'tickets/buy_ticket.html', {
                 'stations': stations,
-                'message': message
+                'error': error
             })
 
         price = calc_price_from_path(path)
@@ -66,7 +67,7 @@ def buy_ticket(request):
         if balance < price:
             return render(request, 'tickets/buy_ticket.html', {
                 'stations': stations,
-                'message': f"Insufficient fund, required {price} available {balance}."
+                'error': f"Insufficient fund, required {price} available {balance}."
             })
         purchase = PurchaseRequest.objects.create(
             user=request.user,
@@ -90,13 +91,17 @@ def buy_ticket(request):
             f'It expires at {expires}.\nIf you did not request this, ignore.'
         )
 
-        send_mail(
-            subject,
-            body,
-            settings.DEFAULT_FROM_EMAIL,
-            [request.user.email],
-            fail_silently=False
-        )
+        try:
+            send_mail(
+                subject,
+                body,
+                settings.DEFAULT_FROM_EMAIL,
+                [request.user.email],
+                fail_silently=True,
+                timeout=10
+            )
+        except Exception:
+            pass
 
         return render(request, 'tickets/otp_sent.html', {
             'purchase': purchase,
@@ -131,9 +136,21 @@ def verify_otp(request, purchase_id):
                 wallet.balance = wallet.balance - purchase.price
                 wallet.save()
                 ticket = Ticket.objects.create(user=request.user, start=start_obj, end=end_obj, path=purchase.path, direction=purchase.direction, price=purchase.price, expires_at=timezone.now()+timedelta(hours=6), status='ACTIVE')
+                path = ", ".join(purchase.path)
+                direction = " - ".join(purchase.direction)
                 subject = 'Metro Ticket Purchased'
-                body = f'Your ticket (ID: {ticket.id}) from {ticket.start.name} to {ticket.end.name} has been issued. Price: {ticket.price}.'
-                send_mail(subject, body, settings.DEFAULT_FROM_EMAIL, [request.user.email], fail_silently=False)
+                body = f'Your ticket (ID: {ticket.id}) from {ticket.start.name} to {ticket.end.name} has been issued. Price: {ticket.price}.\n Please follow following direction:\nPath: {path}\nDirection: {direction}'
+                try:
+                    send_mail(
+                        subject,
+                        body,
+                        settings.DEFAULT_FROM_EMAIL,
+                        [request.user.email],
+                        fail_silently=True,
+                        timeout=10
+                    )
+                except Exception:
+                    pass
                 purchase.delete()
                 return redirect('tickets:ticket_list')
             else:
@@ -162,10 +179,11 @@ def wallet_view(request):
         except Exception:
             return render(request, 'tickets/wallet_view.html', {
                 'balance': wallet.balance,
-                'message': "Invalid money added"})
+                'error': "Invalid money added"})
         wallet.balance = wallet.balance + money
         wallet.save()
-    return render(request, 'tickets/wallet_view.html', {'balance': wallet.balance, 'message': ''})
+    return render(request, 'tickets/wallet_view.html', {
+        'balance': wallet.balance, 'message': f'{money} added to wallet.'})
 
 @login_required
 def scanner_view(request):
@@ -176,14 +194,16 @@ def scan_ticket_api(request, ticket_id):
     try:
         ticket = Ticket.objects.get(id=ticket_id)
     except Ticket.DoesNotExist:
-        return JsonResponse({'message': 'Invalid Ticket ID'})
+        return JsonResponse({'error': 'Invalid Ticket ID'})
     #ticket = get_object_or_404(Ticket, id=ticket_id)
     if not request.user.is_staff and ticket.user.id != request.user.id:
-        return JsonResponse({'message': 'Invalid Ticket ID'})
+        return JsonResponse({'error': 'Invalid Ticket ID'})
     action = request.GET.get('action','toggle')
     if action == 'enter':
         if ticket.status == 'ACTIVE':
 
+            if not get_service_status():
+                return JsonResponse({'error': "Metro service is disabled, so cannot enter metro"})
             # validation if line is open for use
             curr_line = ""
             for l in ticket.direction:
@@ -193,20 +213,20 @@ def scan_ticket_api(request, ticket_id):
                 try:
                     ln = Line.objects.get(name=l)
                     if not ln.enable:
-                        return JsonResponse({'message': f"Line {l} is not operative, so cannot buy this ticket."})
+                        return JsonResponse({'error': f"Line {l} is not operative, so cannot buy this ticket."})
                 except Exception:
-                    return JsonResponse({'message': 'Invalid path selected.'})
+                    return JsonResponse({'error': 'Invalid path selected.'})
  
             ticket.status = 'IN_USE'
             ticket.started_at = timezone.now()
         else:
-            return JsonResponse({'message': 'Ticket must be in ACTIVE state to enter'})
+            return JsonResponse({'error': 'Ticket must be in ACTIVE state to enter'})
     elif action == 'exit':
         if ticket.status == 'IN_USE':
             ticket.status = 'USED'
             ticket.ended_at = timezone.now()
         else:
-            return JsonResponse({'message': 'Ticket must be in IN_USE state to exit'})
+            return JsonResponse({'error': 'Ticket must be in IN_USE state to exit'})
     else:
         ticket.status = 'USED' if ticket.status != 'USED' else 'ACTIVE'
     ticket.save()
