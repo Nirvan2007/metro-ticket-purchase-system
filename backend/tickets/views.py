@@ -170,6 +170,7 @@ def ticket_list(request):
 
 @login_required
 def wallet_view(request):
+    message = ''
     try:
         wallet = Wallet.objects.get(user=request.user)
     except Wallet.DoesNotExist:
@@ -183,8 +184,9 @@ def wallet_view(request):
                 'error': "Invalid money added"})
         wallet.balance = wallet.balance + money
         wallet.save()
+        message = f'{money} added to wallet.'
     return render(request, 'tickets/wallet_view.html', {
-        'balance': wallet.balance, 'message': f'{money} added to wallet.'})
+        'balance': wallet.balance, 'message': message})
 
 @login_required
 def scanner_view(request):
@@ -232,3 +234,27 @@ def scan_ticket_api(request, ticket_id):
         ticket.status = 'USED' if ticket.status != 'USED' else 'ACTIVE'
     ticket.save()
     return JsonResponse({'status': ticket.status, 'ticket_id': ticket.id})
+
+
+@login_required
+def station_list(request):
+    lines = Line.objects.all().order_by("name")
+    stations = []
+    line = ''
+    if request.method == 'POST':
+        line_name = request.POST.get("line")
+        if not line_name:
+            return render(request, 'tickets/station_list.html',
+                {"lines": lines, "stations": stations}
+            )
+        try:
+            ln = Line.objects.get(name=line_name)
+        except Line.DoesNotExist:
+            return render(request, 'tickets/station_list.html',
+                {"lines": lines, "stations": stations}
+            )
+        stations = StationLine.objects.filter(line=ln).order_by("position")
+        line = line_name
+    return render(request, 'tickets/station_list.html',
+        {"lines": lines, "stations": stations, "ln": line}
+    )
