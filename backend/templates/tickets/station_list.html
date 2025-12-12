@@ -1,0 +1,19 @@
+{% extends 'tickets/base.html' %}
+{% block content %}
+<h2>List Station in Line</h2>
+<form method='post'>{% csrf_token %}
+  <label>Select Line</label>
+  <select name='line'>
+    {% for l in lines %}
+      <option value='{{ l.name }}'>{{ l.name }}</option>
+    {% endfor %}
+  </select>
+  <button type='submit'>List Line</button>
+</form>
+<h2> List of Station for Line {{ ln }}</h2>
+<ul>
+  {% for s in stations %}
+    <li>{{ s.station.name }}: {{ s.position }}</li>
+  {% endfor %}
+</ul>
+{% endblock %}
