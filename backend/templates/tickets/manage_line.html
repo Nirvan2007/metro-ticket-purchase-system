@@ -1,8 +1,12 @@
 {% extends 'tickets/base.html' %}
 {% block content %}
 <h2>Manage Lines</h2>
+{% if error %}<p style='color:rgb(255, 0, 0)'>{{ error }}</p>{% endif %}
 {% if message %}<p style='color:rgb(0, 42, 255)'>{{ message }}</p>{% endif %}
 <form method='post'>{% csrf_token %}
+  <button type='submit' formaction="/start-service/" {{ start }}>Start Service</button>
+  <button type='submit' formaction="/stop-service/" {{ stop }}>Stop Service</button>
+  <br><br>
   <label>Select Line</label>
   <select name='en_line'>
     {% for l in enable_lines %}

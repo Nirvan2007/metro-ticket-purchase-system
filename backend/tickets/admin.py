@@ -1,10 +1,10 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required, user_passes_test
-from .models import Ticket, Station, Line, StationLine
+from .models import Ticket, Station, Line, StationLine, Config
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.utils import timezone
-from datetime import timedelta
+from datetime import timedelta, date, datetime
 from delhi_metro_lines import load_data, shortest_path, line, get_station_by_name
 from django.core.mail import send_mail
 from django.conf import settings
@@ -15,37 +15,37 @@ from tickets.metro_graph import (
     calc_price_from_path
 )
 
-@login_required
+def is_admin_staff(user):
+    return user.is_staff
+
+@user_passes_test(is_admin_staff)
 def add_line(request):
     message = ''
 
     if request.method == 'POST':
         line_name = request.POST.get('line_name')
         if not line_name:
-            message = 'No Line Name Given'
+            error = 'No Line Name Given'
             return render(request, 'tickets/add_line.html', {
-                'message': message
+                'error': error
             })
         try:
             line = Line.objects.get(name__iexact=line_name)
-            message = 'Line Already Exist'
+            error = 'Line Already Exist'
             return render(request, 'tickets/add_line.html', {
-                'message': message
+                'error': error
             })
         except Line.DoesNotExist:
             pass
-        line = Line.objects.create(name=line_name)
-
-        return render(request, 'tickets/add_line.html', {
-            'message': f"{line_name} added successfully."
-        })
+        Line.objects.create(name=line_name)
+        message = f"{line_name} added successfully."
 
     return render(request, 'tickets/add_line.html', {
         'message': message
     })
 
 
-@login_required
+@user_passes_test(is_admin_staff)
 def add_station(request):
     message = ''
     lines = Line.objects.all().order_by('name')
@@ -54,18 +54,21 @@ def add_station(request):
         line = request.POST.get('line')
         station = request.POST.get('station')
         try:
-            position = int(request.POST.get('position', 1000))
+            position = request.POST.get('position', 1000)
+            if not position:
+                position = 1000
+            position = int(position)
         except Exception:
             return render(request, 'tickets/add_station.html', {
                 'lines': lines,
-                'message': 'Invalid station position.'
+                'error': 'Invalid station position.'
             })
         try:
             line_obj = Line.objects.get(name__iexact=line)
         except Line.DoesNotExist:
             return render(request, 'tickets/add_station.html', {
                 'lines': lines,
-                'message': 'Provided Line Does not exist.'
+                'error': f"Provided Line {line} Does not exist."
             })
         try:
             station_obj = Station.objects.get(name__iexact=station)
@@ -101,10 +104,7 @@ def add_station(request):
         else:
             st.position = ins_position
             st.save()
-        return render(request, 'tickets/add_station.html', {
-            'lines': lines,
-            'message': f"{station} {st} at {ins_position}"
-        })
+        message = f"{station} inserted / updated at {ins_position} position in {line} line."
 
     return render(request, 'tickets/add_station.html', {
         'lines': lines,
@@ -112,56 +112,80 @@ def add_station(request):
     })
 
 
-@login_required
-def manage_line(request, enable=False):
+def get_service_status():
+    try:
+        config = Config.objects.all().first()
+        service_enable = config.enable
+    except Exception:
+        service_enable = True
+    return service_enable
+
+def create_manage_line_page(request, error='', message=''):
+    service_enable = get_service_status()
+    enable_lines = Line.objects.filter(enable=True).order_by("name")
+    disable_lines = Line.objects.filter(enable=False).order_by("name")
+    return render(request, 'tickets/manage_line.html', {
+        'message': message,
+        'error': error,
+        'enable_lines': enable_lines,
+        'disable_lines': disable_lines,
+        'start': "disabled" if service_enable else "",
+        'stop': "" if service_enable else "disabled"
+    })
+
+@user_passes_test(is_admin_staff)
+def manage_line(request, enable=False, service=False):
     message = ''
 
-    enable_lines = Line.objects.filter(enable=True)
-    disable_lines = Line.objects.filter(enable=False)
     if request.method == 'POST':
+        if service:
+            try:
+                config = Config.objects.all().first()
+                if not config:
+                    raise Config.DoesNotExist
+                config.enable = enable
+                config.save()
+            except Config.DoesNotExist:
+                Config.objects.create(enable=enable)
+            service_enable = enable
+            message = f'Metro service {"started" if enable else "stoped"}.'
+            return create_manage_line_page(request, '', message)
         line = "dis_line" if enable else "en_line"
         line_name = request.POST.get(line)
         if not line_name:
-            message = 'No Line Name Given'
-            return render(request, 'tickets/manage_line.html', {
-                'message': message,
-                'enable_lines': enable_lines,
-                'disable_lines': disable_lines
-            })
+            error = 'No Line Name Given'
+            return create_manage_line_page(request, error, message)
         try:
             line = Line.objects.get(name__iexact=line_name)
         except Line.DoesNotExist:
-            return render(request, 'tickets/manage_line.html', {
-                'message': 'Line not found.',
-                'enable_lines': enable_lines,
-                'disable_lines': disable_lines
-            })
+            return create_manage_line_page(request, "Line not found.", message)
         line.enable = enable
         line.save()
         message = f"Line {line_name} {'enabled' if enable else 'disabled'} for service."
+    return create_manage_line_page(request, '', message)
 
-    enable_lines = Line.objects.filter(enable=True)
-    disable_lines = Line.objects.filter(enable=False)
-    return render(request, 'tickets/manage_line.html', {
-        'message': message,
-        'enable_lines': enable_lines,
-        'disable_lines': disable_lines
-    })
-
-
-@login_required
+@user_passes_test(is_admin_staff)
 def enable_line(request):
     return manage_line(request, enable=True)
 
-@login_required
+@user_passes_test(is_admin_staff)
 def disable_line(request):
     return manage_line(request, enable=False)
 
-@login_required
+@user_passes_test(is_admin_staff)
+def start_service(request):
+    return manage_line(request, enable=True, service=True)
+
+@user_passes_test(is_admin_staff)
+def stop_service(request):
+    return manage_line(request, enable=False, service=True)
+
+@user_passes_test(is_admin_staff)
 def buy_ticket_offline(request):
     message = ''
     path = ''
     direction = ''
+    service_enable = get_service_status()
     stations = Station.objects.all().order_by('name')
 
     if request.method == 'POST':
@@ -170,9 +194,14 @@ def buy_ticket_offline(request):
         if start_name == end_name:
             return render(request, 'tickets/buy_ticket_offline.html', {
                 'stations': stations,
-                'message': "Start and End Station cannot be same."
+                'error': "Start and End Station cannot be same."
             })
 
+        if not service_enable:
+            return render(request, 'tickets/buy_ticket_offline.html', {
+                'stations': stations,
+                'error': 'Metro service not running cannot buy offline ticket now.'
+            })
         try:
             start_obj = Station.objects.get(name=start_name)
             end_obj = Station.objects.get(name=end_name)
@@ -180,17 +209,17 @@ def buy_ticket_offline(request):
             message = 'Invalid station names'
             return render(request, 'tickets/buy_ticket_offline.html', {
                 'stations': stations,
-                'message': message
+                'error': message
             })
         #graph = build_graph()
         #path_names = shortest_path_by_name(start_name, end_name, graph)
         path, lines = shortest_path_by_adj(start_obj, end_obj)
 
         if not path:
-            message = 'No path found'
+            message = f'No path found between {start_name} -> {end_name}'
             return render(request, 'tickets/buy_ticket_offline.html', {
                 'stations': stations,
-                'message': message
+                'error': message
             })
 
         # validation if line is open for use
@@ -204,12 +233,12 @@ def buy_ticket_offline(request):
                 if not ln.enable:
                     return render(request, 'tickets/buy_ticket_offline.html', {
                         'stations': stations,
-                        'message': f"Line {l} is not operative, so cannot buy this ticket."
+                        'error': f"Line {l} is not operative, so cannot buy this ticket."
                     })
             except Exception:
                 return render(request, 'tickets/buy_ticket_offline.html', {
                     'stations': stations,
-                    'message': "Invalid Path."
+                    'error': "Invalid Path."
                 })
         price = calc_price_from_path(path)
         #directions = generate_directions(path_names)
@@ -238,3 +267,21 @@ def buy_ticket_offline(request):
     })
 
 
+@user_passes_test(is_admin_staff)
+def foot_fall(request):
+    lines = {}
+    today = date.today()
+    tickets = Ticket.objects.filter(started_at__gte=today.isoformat())
+    for ticket in tickets:
+        if ticket.status not in ["IN_USE", "USED"]:
+            continue
+        if not len(ticket.direction):
+            continue
+        if ticket.direction[0] in lines:
+            lines[ticket.direction[0]] = lines[ticket.direction[0]] + 1
+        else:
+            lines[ticket.direction[0]] = 1
+    return render(request, 'tickets/line_footfall.html', {
+        'today': today,
+        'lines': lines
+    })

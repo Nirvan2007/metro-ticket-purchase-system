@@ -116,3 +116,5 @@ SOCIALACCOUNT_PROVIDERS = {
 }
 
 CSRF_TRUSTED_ORIGINS = ["https://metro.teztravels.com"]
+
+LOGIN_URL = "https://metro.teztravels.com"
