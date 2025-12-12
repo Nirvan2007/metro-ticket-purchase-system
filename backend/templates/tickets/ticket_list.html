@@ -4,7 +4,8 @@
 <ul>
   {% for t in tickets %}
     <li>Ticket {{ t.id }}: {{ t.start.name }} -> {{ t.end.name }} | Price: {{ t.price }} | Status: {{ t.status }}<br>
-    Direction {{ t.direction }}</li>
+    Path: {{ t.path }}<br>
+    Direction: {{ t.direction }}</li>
   {% empty %}
     <li>No tickets yet.</li>
   {% endfor %}

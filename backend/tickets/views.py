@@ -165,6 +165,7 @@ def ticket_list(request):
     for ticket in tickets:
         ticket.direction = get_direction(ticket.path, ticket.direction)
         ticket.direction = " - ".join(ticket.direction)
+        ticket.path = ", ".join(ticket.path)
     return render(request, 'tickets/ticket_list.html', {'tickets': tickets})
 
 @login_required
