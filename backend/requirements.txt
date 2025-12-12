@@ -21,3 +21,5 @@ gunicorn>=21.0.0
 
 # Optional: useful timezone utilities
 pytz>=2023.3
+
+sendgrid
