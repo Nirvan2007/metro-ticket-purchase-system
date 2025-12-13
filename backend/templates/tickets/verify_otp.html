@@ -2,7 +2,7 @@
 {% block content %}
 <h2>Verify OTP for Purchase {{ purchase.id }}</h2>
 <form method='post'>{% csrf_token %}
-  {{ form.as_p }}
+  {{ form.as_p }} <p><a href="{% url 'tickets:resend_otp' purchase.id %}">Resend OTP</a></p>
   <button type='submit'>Verify and Complete Purchase</button>
 </form>
 {% endblock %}
