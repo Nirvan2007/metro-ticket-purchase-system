@@ -15,6 +15,7 @@ urlpatterns = [
     path('footfall/', admin.foot_fall, name='foot_fall'),
     path('buy/', views.buy_ticket, name='buy_ticket'),
     path('verify-otp/<int:purchase_id>/', views.verify_otp, name='verify_otp'),
+    path('resend-otp/<int:purchase_id>/', views.resend_otp, name='resend_otp'),
     path('tickets/', views.ticket_list, name='ticket_list'),
     path('scanner/', views.scanner_view, name='scanner'),
     path('wallet/', views.wallet_view, name='wallet'),

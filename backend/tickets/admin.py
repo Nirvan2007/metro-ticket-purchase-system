@@ -14,6 +14,7 @@ from tickets.metro_graph import (
     get_direction,
     calc_price_from_path
 )
+from .utils import get_service_status
 
 def is_admin_staff(user):
     return user.is_staff
@@ -111,14 +112,6 @@ def add_station(request):
         'message': message
     })
 
-
-def get_service_status():
-    try:
-        config = Config.objects.all().first()
-        service_enable = config.enable
-    except Exception:
-        service_enable = True
-    return service_enable
 
 def create_manage_line_page(request, error='', message=''):
     service_enable = get_service_status()

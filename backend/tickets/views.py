@@ -18,7 +18,7 @@ from tickets.metro_graph import (
     get_direction,
     calc_price_from_path
 )
-from .admin import get_service_status
+from .utils import send_email, get_service_status
 
 def home(request):
     return render(request, 'tickets/home.html', {})
@@ -87,21 +87,20 @@ def buy_ticket(request):
         )
         subject = 'Your Metro Ticket OTP'
         body = (
-            f'Your OTP to confirm metro ticket from {start_name} to {end_name} is: {code}.\n'
-            f'It expires at {expires}.\nIf you did not request this, ignore.'
+            f'Your OTP to confirm metro ticket from <b>{start_name}</b> to <b>{end_name}</b> is: <b>{code}</b>.<br>'
+            f'It expires at <b>{expires}</b>.<br>If you did not request this, ignore.'
         )
 
         try:
-            send_mail(
-                subject,
-                body,
-                settings.DEFAULT_FROM_EMAIL,
-                [request.user.email],
-                fail_silently=True,
-                timeout=10
+            send_email(
+                {
+                    "to": request.user.email,
+                    "subject": subject,
+                    "content": body
+                }
             )
-        except Exception:
-            pass
+        except Exception as e:
+            print("Unable to send email:", str(e))
 
         return render(request, 'tickets/otp_sent.html', {
             'purchase': purchase,
@@ -113,6 +112,38 @@ def buy_ticket(request):
         'stations': stations,
         'message': message
     })
+
+
+@login_required
+def resend_otp(request, purchase_id):
+    purchase = get_object_or_404(PurchaseRequest, id=purchase_id, user=request.user)
+    code = str(random.randint(100000, 999999))
+    expires = timezone.now() + timedelta(minutes=5)
+    print("code: ", code)
+    OTP.objects.create(
+        purchase=purchase,
+        code=code,
+        expires_at=expires
+    )
+    subject = 'Your Metro Ticket OTP'
+    body = (
+        f'Your OTP to confirm metro ticket from <b>{purchase.start_name}</b> to <b>{purchase.end_name}</b> is: <b>{code}</b>.<br>'
+        f'It expires at <b>{expires}</b>.<br>If you did not request this, ignore.'
+    )
+
+    try:
+        send_email(
+            {
+                "to": request.user.email,
+                "subject": subject,
+                "content": body
+            }
+        )
+    except Exception as e:
+        print("Unable to send email:", str(e))
+    form = VerifyOTPForm()
+    #return render(request, 'tickets/verify_otp.html', {'form': form, 'purchase': purchase})
+    return redirect('tickets:verify_otp', purchase.id)
 
 
 @login_required
@@ -137,20 +168,18 @@ def verify_otp(request, purchase_id):
                 wallet.save()
                 ticket = Ticket.objects.create(user=request.user, start=start_obj, end=end_obj, path=purchase.path, direction=purchase.direction, price=purchase.price, expires_at=timezone.now()+timedelta(hours=6), status='ACTIVE')
                 path = ", ".join(purchase.path)
-                direction = " - ".join(purchase.direction)
+                direction = get_direction(purchase.path, purchase.direction)
+                direction = " - ".join(direction)
                 subject = 'Metro Ticket Purchased'
-                body = f'Your ticket (ID: {ticket.id}) from {ticket.start.name} to {ticket.end.name} has been issued. Price: {ticket.price}.\n Please follow following direction:\nPath: {path}\nDirection: {direction}'
+                body = f'Your ticket (ID: <b>{ticket.id}</b>) from <b>{ticket.start.name}</b> to <b>{ticket.end.name}</b> has been issued. Price: <b>{ticket.price}</b>.<br>Please follow following direction:<br>Path: <b>{path}</b><br>Direction: <b>{direction}</b>'
                 try:
-                    send_mail(
-                        subject,
-                        body,
-                        settings.DEFAULT_FROM_EMAIL,
-                        [request.user.email],
-                        fail_silently=True,
-                        timeout=10
-                    )
-                except Exception:
-                    pass
+                    send_email({
+                        'to': request.user.email,
+                        'subject': subject,
+                        'content': body
+                    })
+                except Exception as e:
+                    print("Unable to send email:", str(e))
                 purchase.delete()
                 return redirect('tickets:ticket_list')
             else:
