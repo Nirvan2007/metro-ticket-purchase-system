@@ -13,10 +13,17 @@ Local dev usage:
    source .venv/bin/activate
    pip install -r requirements.txt
    ```
-4. copy backend/.env.example -> backend/.env and fill EMAIL and OAuth keys
-5. python manage.py migrate
-6. python manage.py load_stations
-7. python manage.py runserver
+3. copy backend/.env.example -> backend/.env and fill EMAIL and OAuth keys
+4. python manage.py migrate
+5. python manage.py load_stations
+6. python manage.py runserver
+
+Email notification:
+
+Email notification is sent for ticket purchase OTP and successful purchase of ticket.
+Earlier it was implemented using Django email sending module to send email using external SMTP server.
+Production system is deployed using Ubuntu Droplet on Digital Ocean. Digital ocean does not allow outgoing SMTP service.
+Therefore **sendgrid** is used for sending email. Configure your sendgrid apikey in .env file using **SENDGRID_API_KEY** key.
 
 Notes:
 - OTP expires in 5 minutes.
