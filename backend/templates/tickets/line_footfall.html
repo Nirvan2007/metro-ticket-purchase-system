@@ -7,5 +7,10 @@
   {% empty %}
     <li>No tickets yet.</li>
   {% endfor %}
+  {%for station, count in stations.items %}
+    <li>{{ station }}: {{ count }}</li><br>
+  {% empty %}
+    <li>No stations yet.</li>
+  {% endfor %}
 </ul>
 {% endblock %}

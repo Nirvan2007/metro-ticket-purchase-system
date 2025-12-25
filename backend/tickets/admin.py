@@ -207,7 +207,6 @@ def buy_ticket_offline(request):
         #graph = build_graph()
         #path_names = shortest_path_by_name(start_name, end_name, graph)
         path, lines = shortest_path_by_adj(start_obj, end_obj)
-
         if not path:
             message = f'No path found between {start_name} -> {end_name}'
             return render(request, 'tickets/buy_ticket_offline.html', {
@@ -263,6 +262,7 @@ def buy_ticket_offline(request):
 @user_passes_test(is_admin_staff)
 def foot_fall(request):
     lines = {}
+    stations={}
     today = date.today()
     tickets = Ticket.objects.filter(started_at__gte=today.isoformat())
     for ticket in tickets:
@@ -270,11 +270,22 @@ def foot_fall(request):
             continue
         if not len(ticket.direction):
             continue
-        if ticket.direction[0] in lines:
-            lines[ticket.direction[0]] = lines[ticket.direction[0]] + 1
-        else:
-            lines[ticket.direction[0]] = 1
+        curr_line = ticket.direction[0]
+        i = 0
+        for st in ticket.path:
+            if i < len(ticket.direction) and curr_line != ticket.direction[i]:
+                if ticket.direction[i] in lines:
+                    lines[ticket.direction[i]] = lines[ticket.direction[i]] + 1
+                else:
+                    lines[ticket.direction[i]] = 1
+                if st in stations:
+                    stations[st] = stations[st] + 1
+                else:
+                    stations[st] = 1
+                curr_line = ticket.direction[i]
+            i = i + 1
     return render(request, 'tickets/line_footfall.html', {
         'today': today,
-        'lines': lines
+        'lines': lines,
+        'stations': stations
     })
