@@ -249,7 +249,7 @@ def buy_ticket_offline(request):
         )
         path = ", ".join(path)
         direction = " - ".join(direction)
-        message = f"A ticket has been purchased from {start_name} -> {end_name} and marked as used."
+        message = f"A ticket has been purchased from {start_name} -> {end_name} at price {price} and marked as used."
 
     return render(request, 'tickets/buy_ticket_offline.html', {
         'stations': stations,
@@ -272,18 +272,15 @@ def foot_fall(request):
             continue
         curr_line = ticket.direction[0]
         i = 0
+        stations[ticket.path[0]] = stations[ticket.path[0]] + 1 if ticket.path[0] in stations else 1
+        lines[ticket.direction[0]] = lines[ticket.direction[0]] + 1 if ticket.direction[0] in lines else 1
         for st in ticket.path:
             if i < len(ticket.direction) and curr_line != ticket.direction[i]:
-                if ticket.direction[i] in lines:
-                    lines[ticket.direction[i]] = lines[ticket.direction[i]] + 1
-                else:
-                    lines[ticket.direction[i]] = 1
-                if st in stations:
-                    stations[st] = stations[st] + 1
-                else:
-                    stations[st] = 1
+                lines[ticket.direction[i]] = lines[ticket.direction[i]] + 1 if ticket.direction[i] in lines else 1
+                stations[st] = stations[st] + 1 if st in stations else 1
                 curr_line = ticket.direction[i]
             i = i + 1
+        stations[st] = stations[st] + 1 if st in stations else 1
     return render(request, 'tickets/line_footfall.html', {
         'today': today,
         'lines': lines,

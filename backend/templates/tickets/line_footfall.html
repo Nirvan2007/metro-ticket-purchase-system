@@ -1,14 +1,18 @@
 {% extends 'tickets/base.html' %}
 {% block content %}
 <h2>Daily Footfall for {{ today }}</h2>
+<h3>Daily Footfall for Lines: </h3>
 <ul>
   {% for line, count in lines.items %}
-    <li>{{ line }}: {{ count }}</li><br>
+    <li>{{ line }}: {{ count }}</li>
   {% empty %}
     <li>No tickets yet.</li>
   {% endfor %}
+</ul>
+<h3>Daily Footfall for Stations: </h3>
+<ul>
   {%for station, count in stations.items %}
-    <li>{{ station }}: {{ count }}</li><br>
+    <li>{{ station }}: {{ count }}</li>
   {% empty %}
     <li>No stations yet.</li>
   {% endfor %}
