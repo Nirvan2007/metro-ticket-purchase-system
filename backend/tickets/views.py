@@ -5,16 +5,12 @@ from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.utils import timezone
 from datetime import timedelta
-from delhi_metro_lines import load_data, shortest_path, line, get_station_by_name
 from django.core.mail import send_mail
 from django.conf import settings
 import random
 from .forms import VerifyOTPForm
 from tickets.metro_graph import (
     shortest_path_by_adj,
-    build_graph,
-    shortest_path_by_name,
-    generate_directions,
     get_direction,
     calc_price_from_path
 )

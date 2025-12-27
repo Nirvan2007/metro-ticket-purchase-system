@@ -204,8 +204,6 @@ def buy_ticket_offline(request):
                 'stations': stations,
                 'error': message
             })
-        #graph = build_graph()
-        #path_names = shortest_path_by_name(start_name, end_name, graph)
         path, lines = shortest_path_by_adj(start_obj, end_obj)
         if not path:
             message = f'No path found between {start_name} -> {end_name}'
@@ -233,7 +231,6 @@ def buy_ticket_offline(request):
                     'error': "Invalid Path."
                 })
         price = calc_price_from_path(path)
-        #directions = generate_directions(path_names)
         direction = get_direction(path, lines)
 
         ticket = Ticket.objects.create(
