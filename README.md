@@ -51,6 +51,7 @@ Therefore **sendgrid** is used for sending email. Configure your sendgrid apikey
 - Deployed using Ubuntu Droplet on Digital ocean
 - Uses **docker compose** to run 3 docker containers
 - NGINX Web Server to handle incoming HTTPS request
+- Only HTTPS is supported and certificate is issued using Lets Encrypt service
 - Application Server running python code for the application using Django and gunicorn
 - Database Server running PostgreSQL
 - sendgrid to send email notification
