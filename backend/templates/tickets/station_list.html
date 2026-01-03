@@ -1,5 +1,7 @@
 {% extends 'tickets/base.html' %}
 {% block content %}
+<main class="page">
+<div class="full-card">
 <h2>List Station in Line</h2>
 <form method='post'>{% csrf_token %}
   <label>Select Line</label>
@@ -8,7 +10,7 @@
       <option value='{{ l.name }}'>{{ l.name }}</option>
     {% endfor %}
   </select>
-  <button type='submit'>List Line</button>
+  <button type='submit' class="primary-btn">List Line</button>
 </form>
 <h2> List of Station for Line {{ ln }}</h2>
 <ul>
@@ -16,4 +18,6 @@
     <li>{{ s.station.name }}: {{ s.position }}</li>
   {% endfor %}
 </ul>
+</div>
+</main>
 {% endblock %}

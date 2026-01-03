@@ -1,13 +1,15 @@
 {% extends 'tickets/base.html' %}
 {% block content %}
+<main class="page">
+<div class="full-card">
 <h2>Add Money</h2>
 {% if message %}<p style='color:rgb(0, 42, 255)'>{{ message }}</p>{% endif %}
 <form method='post'>{% csrf_token %}
-  <label>Your Current Balance: {{ balance }}</label>
-  <br>
+  <p>Your Current Balance: {{ balance }}</p>
   <label>Add Money: </label>
   <input id='money' name='money' placeholder='amount' />
-  <br>
-  <button type='submit'>Add Money</button>
+  <button type='submit' class="primary-btn">Add Money</button>
 </form>
+</div>
+</main>
 {% endblock %}

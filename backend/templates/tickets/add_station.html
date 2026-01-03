@@ -1,5 +1,7 @@
 {% extends 'tickets/base.html' %}
 {% block content %}
+<main class="page">
+<div class="full-card">
 <h2>Add Station</h2>
 {% if error %}<p style='color:rgb(255, 0, 0)'>{{ error }}</p>{% endif %}
 {% if message %}<p style='color:rgb(0, 42, 255)'>{{ message }}</p>{% endif %}
@@ -20,6 +22,8 @@
   <input id='position' name='position' placeholder='Position' />
   <br/>
   <br/>
-  <button type='submit'>Add Station</button>
+  <button type='submit' class="primary-btn">Add Station</button>
 </form>
+</div>
+</main>
 {% endblock %}

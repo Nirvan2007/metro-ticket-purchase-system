@@ -1,5 +1,7 @@
 {% extends 'tickets/base.html' %}
 {% block content %}
+<main class="page">
+<div class="full-card">
 <h2>Buy Ticket</h2>
 {% if error %}<p style='color:rgb(255, 0, 0)'>{{ error }}</p>{% endif %}
 {% if message %}<p style='color:rgb(0, 42, 255)'>{{ message }}</p>{% endif %}
@@ -18,6 +20,8 @@
     {% endfor %}
   </select>
   <br/>
-  <button type='submit'>Buy (OTP required)</button>
+  <button type='submit' class="primary-btn">Buy (OTP required)</button>
 </form>
+		</div>
+</main>
 {% endblock %}

@@ -1,33 +1,21 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset='utf-8'>
-  <title>Metro Tickets</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Metro Ticket</title>
+    <link rel="stylesheet" href="/static/styles.css">
 </head>
+
 <body>
-  <nav>
-    <a href="/">Home</a> |
-    {% if user.is_authenticated %}
-      {% if user.is_staff %}
-        <a href="/line/">Add Line</a> |
-        <a href="/station/">Add Station</a> |
-        <a href="/buy-offline/">Buy Ticket Offline</a> |
-        <a href="/manage-line/">Manage Line</a> |
-        <a href="/footfall/">View Footfall</a> |
-      {% else %}
-        <a href="/buy/">Buy Ticket</a> |
-        <a href="/tickets/">My Tickets</a> |
-        <a href="/wallet/">Add Money</a> |
-      {% endif %}
-      <a href="/scanner/">Scan Ticket</a> |
-      <a href="/station-list/">View Station List</a> |
-      <a href="/accounts/">Manage Profile</a> |
-      <a href="/accounts/logout/">Logout</a>
-    {% else %}
-      <a href="/accounts/login/">Login</a>
-    {% endif %}
-  </nav>
-  <hr/>
-  {% block content %}{% endblock %}
+
+<header class="navbar">
+    <div class="nav-container">
+        <div class="logo" >MetroTickets</div>
+        {% include "tickets/nav.html" %}
+    </div>
+</header>
+
+{% block content %} {% endblock %}
 </body>
 </html>

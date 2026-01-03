@@ -1,0 +1,48 @@
+<main class="page">
+    <section class="card">
+
+        <!-- Left panel -->
+        <div class="card-left">
+            <h1>Smart, Seamless Travel</h1>
+            <p>
+                A modern platform designed to simplify ticketing
+                and improve everyday commuting.
+            </p>
+            <ul>
+                <li>Fast checkout</li>
+                <li>Secure platform</li>
+                <li>Minimal friction</li>
+            </ul>
+        </div>
+
+        <!-- Right panel -->
+        <div class="card-right">
+            <h2>Sign in</h2>
+
+            <!-- Google Login (UI only) -->
+	    <form method="post"> {% csrf_token %}
+            <button type="submit" formaction="/accounts/google/login/?process=login" class="google-btn">
+                <img src="/static/images/g-logo.png" alt="Google logo">
+                Continue with Google
+            </button>
+	    </form>
+            <div class="divider"><span>or</span></div>
+
+            <form method="post"> {% csrf_token %}
+                <label>Username</label>
+                <input type="username" name="login" placeholder="username">
+
+                <label>Password</label>
+                <input type="password" name="password" placeholder="••••••••">
+
+                <button type="submit" class="primary-btn" formaction="/accounts/login/">Login</button>
+            </form>
+
+            <p class="muted">
+                Don’t have an account? <a href="#">Create one</a>
+            </p>
+        </div>
+
+    </section>
+</main>
+

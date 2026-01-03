@@ -1,0 +1,28 @@
+<script>
+	function logoutApp() {
+		if (confirm("Do you want to Logout ?")) {
+			document.getElementById('logout').submit();
+		}
+	}
+</script>
+<form name=logout id="logout" method="post" action="/accounts/logout/">{% csrf_token %}
+</form>
+<nav class="nav-links">
+  {% if user.is_authenticated %}
+    {% if user.is_staff %}
+      <a href="/buy-offline/">Buy Ticket Offline</a>
+      <a href="/footfall/">View Footfall</a>
+      <a href="/line/">Add Line</a>
+      <a href="/station/">Add Station</a>
+      <a href="/manage-line/">Manage Line</a>
+    {% else %}
+      <a href="/buy/">Buy Ticket</a>
+      <a href="/tickets/">My Tickets</a>
+      <a href="/wallet/">Add Money</a>
+    {% endif %}
+    <a href="/scanner/">Scan Ticket</a>
+    <a href="/station-list/">View Station List</a>
+    <a href="/accounts/">Manage Profile</a>
+    <button class="logout-btn" onClick='logoutApp();'>Logout</button>
+  {% endif %}
+</nav>
