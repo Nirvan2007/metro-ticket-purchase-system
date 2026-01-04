@@ -1,8 +1,11 @@
 {% extends 'tickets/base.html' %}
 {% block content %}
   {% if user.is_authenticated %}
+    <main class="page">
+        <div class="full-card">
      <h1>Welcome to Metro Ticket System</h1>
-     <p>Use the navigation to buy tickets and view them. Admin/staff can manage metro lines.</p>
+        </div>
+    </main>
   {% else %}
     {% include "tickets/login.html" %}
   {% endif %}

@@ -1,19 +1,20 @@
 {% extends 'tickets/base.html' %}
 {% block content %}
-<h2>Manage Lines</h2>
+<main class="page">
+<div class="full-card">
+<h2 >Manage Lines</h2>
 {% if error %}<p style='color:rgb(255, 0, 0)'>{{ error }}</p>{% endif %}
 {% if message %}<p style='color:rgb(0, 42, 255)'>{{ message }}</p>{% endif %}
 <form method='post'>{% csrf_token %}
-  <button type='submit' formaction="/start-service/" {{ start }}>Start Service</button>
-  <button type='submit' formaction="/stop-service/" {{ stop }}>Stop Service</button>
-  <br><br>
+  <button class="logout-btn" type='submit' formaction="/start-service/" {{ start }}>Start Service</button>
+  <button class="logout-btn" type='submit' formaction="/stop-service/" {{ stop }}>Stop Service</button>
   <label>Select Line</label>
   <select name='en_line'>
     {% for l in enable_lines %}
       <option value='{{ l.name }}'>{{ l.name }}</option>
     {% endfor %}
   </select>
-  <button type='submit' formaction="/disable-line/">Disable</button>
+  <button class="logout-btn" type='submit' formaction="/disable-line/">Disable</button>
   <br/>
   <br/>
   <label>Select Line</label>
@@ -22,6 +23,7 @@
       <option value='{{ l.name }}'>{{ l.name }}</option>
     {% endfor %}
   </select>
-  <button type='submit' formaction="/enable-line/">Enable</button>
+  <button class="logout-btn" type='submit' formaction="/enable-line/">Enable</button>
 </form>
+</div></main>
 {% endblock %}

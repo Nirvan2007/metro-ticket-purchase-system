@@ -1,3 +1,5 @@
+{% extends "tickets/base.html" %}
+{% block content %}
 <main class="page">
     <section class="card">
 
@@ -17,7 +19,7 @@
 
         <!-- Right panel -->
         <div class="card-right">
-            <h2>Sign in</h2>
+            <h2>Sign Up</h2>
 
             <!-- Google Login (UI only) -->
 	    <form method="post"> {% csrf_token %}
@@ -28,21 +30,23 @@
 	    </form>
             <div class="divider"><span>or</span></div>
 
-            <form method="post"> {% csrf_token %}
+            <form method="post">{% csrf_token %}
+                <label>Email (optional)</label>
+                <input type="email" name="email" placeholder="email" id="id_email">
+
                 <label>Username</label>
-                <input type="username" name="login" placeholder="username">
+                <input type="username" name="username" placeholder="username" required id="id_username">
 
                 <label>Password</label>
-                <input type="password" name="password" placeholder="••••••••">
+                <input type="password" name="password1" placeholder="••••••••" required id="id_password1">
 
-                <button type="submit" class="primary-btn" formaction="/accounts/login/">Login</button>
+                <label>Confirm Password</label>
+                <input type="password" name="password2" placeholder="••••••••" required id="id_password2">
+
+                <button type="submit" class="primary-btn" formaction="/accounts/signup/">Sign Up</button>
             </form>
-
-            <p class="muted">
-                Don’t have an account? <a href="/signup/">Create one</a>
-            </p>
         </div>
 
     </section>
 </main>
-
+{% endblock %}

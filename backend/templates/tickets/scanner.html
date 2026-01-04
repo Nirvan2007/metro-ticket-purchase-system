@@ -1,10 +1,12 @@
 {% extends 'tickets/base.html' %}
 {% block content %}
+<main class="page">
+<div class="full-card">
 <h2>Ticket Scanner</h2>
 <p>Enter ticket id to mark enter/exit.</p>
 <input id='ticket_id' placeholder='Ticket id' />
-<button onclick='enter()'>Enter</button>
-<button onclick='exit()'>Exit</button>
+<button class="view-btn" onclick='enter()'>Enter</button>
+<button class="view-btn" onclick='exit()'>Exit</button>
 <div id='result'></div>
 <script>
 function api(action){
@@ -16,4 +18,5 @@ function api(action){
 function enter(){ api('enter'); }
 function exit(){ api('exit'); }
 </script>
+</div></main> 
 {% endblock %}

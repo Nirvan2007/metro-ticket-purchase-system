@@ -18,6 +18,8 @@ from .utils import send_email, get_service_status
 
 def home(request):
     return render(request, 'tickets/home.html', {})
+def signup(request):
+    return render(request, 'tickets/signup.html', {})
 
 @login_required
 def buy_ticket(request):

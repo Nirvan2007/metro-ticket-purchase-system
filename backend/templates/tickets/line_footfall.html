@@ -1,20 +1,27 @@
 {% extends 'tickets/base.html' %}
 {% block content %}
-<h2>Daily Footfall for {{ today }}</h2>
-<h3>Daily Footfall for Lines: </h3>
+<main class="page">
+<div class="full-card">
+<h2 align="center">Daily Footfall for {{ today }}</h2>
+<br/>
+<h3 align="center">Daily Footfall for Lines: </h3>
+<br/>
 <ul>
   {% for line, count in lines.items %}
     <li>{{ line }}: {{ count }}</li>
   {% empty %}
-    <li>No tickets yet.</li>
+    <h4 align="center">No tickets yet.</h4>
   {% endfor %}
 </ul>
-<h3>Daily Footfall for Stations: </h3>
+<br/><br/>
+<h3 align="center">Daily Footfall for Stations: </h3>
+<br/>
 <ul>
   {%for station, count in stations.items %}
     <li>{{ station }}: {{ count }}</li>
   {% empty %}
-    <li>No stations yet.</li>
+    <h4 align="center">No stations yet.</h4>
   {% endfor %}
 </ul>
+</div></main>
 {% endblock %}

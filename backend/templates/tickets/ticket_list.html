@@ -1,5 +1,7 @@
 {% extends 'tickets/base.html' %}
 {% block content %}
+<main class="page">
+<div class="full-card">
 <h2>My Tickets</h2>
 <ul>
   {% for t in tickets %}
@@ -10,4 +12,5 @@
     <li>No tickets yet.</li>
   {% endfor %}
 </ul>
+</div></main>
 {% endblock %}

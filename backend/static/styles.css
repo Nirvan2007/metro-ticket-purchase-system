@@ -64,7 +64,50 @@ body {
     background: #1e40af;
 }
 
+.flex {
+  display: flex;
+  justify-content: center;
+}
 
+.flex-item + .flex-item {
+  margin-left: 10px;
+}
+
+.two-button {
+  margin-top: 15px;
+  background-color: #0066FF;
+  border: none;
+  color: white;
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  cursor: pointer;
+}
+.view-btn {
+    margin-left: 5rem;
+    text-decoration: none;
+    color: white;
+    font-weight: 500;
+    font-size: 0.9rem;
+    padding: 1rem;
+    border: none;
+    border-radius: 16px;
+    cursor: pointer;
+    margin-top: 15px;
+    background-color: #0066FF;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+}
+.view-btn:hover {
+    background: #1e40af;
+}
 /* Layout */
 .page {
     display: flex;
