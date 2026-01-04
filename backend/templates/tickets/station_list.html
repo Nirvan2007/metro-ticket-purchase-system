@@ -12,12 +12,16 @@
   </select>
   <button type='submit' class="primary-btn">List Line</button>
 </form>
-<h2> List of Station for Line {{ ln }}</h2>
+{% if ln %}
+<br>
+<h3> List of Station for Line {{ ln }}</h3>
+<br>
 <ul>
   {% for s in stations %}
     <li>{{ s.station.name }}: {{ s.position }}</li>
   {% endfor %}
 </ul>
+{% endif %}
 </div>
 </main>
 {% endblock %}

@@ -60,6 +60,16 @@ body {
     cursor: pointer;
 }
 
+.logout-btn:disabled {
+    color: black;
+    background: grey;
+}
+
+.logout-btn:disabled:hover {
+    color: black;
+    background: grey;
+}
+
 .logout-btn:hover {
     background: #1e40af;
 }

@@ -20,6 +20,6 @@ urlpatterns = [
     path('scanner/', views.scanner_view, name='scanner'),
     path('wallet/', views.wallet_view, name='wallet'),
     path('station-list/', views.station_list, name='station_list'),
-    path('api/scan/<int:ticket_id>/', views.scan_ticket_api, name='scan_ticket_api'),
+    #path('api/scan/<int:ticket_id>/', views.scan_ticket_api, name='scan_ticket_api'),
     path('signup/', views.signup, name='signup'),
 ]

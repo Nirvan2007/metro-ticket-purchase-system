@@ -161,7 +161,7 @@ def verify_otp(request, purchase_id):
                     wallet = Wallet.objects.create(user=request.user, balance=0)
                 if purchase.price > wallet.balance:
                     return render(request, 'tickets/wallet_view.html', {
-                        'balance': wallet.balance, 'message': f"Insufficent fund need {purchase.price}"}) 
+                        'balance': wallet.balance, 'message': f"Insufficent fund need {purchase.price}"})
                 wallet.balance = wallet.balance - purchase.price
                 wallet.save()
                 ticket = Ticket.objects.create(user=request.user, start=start_obj, end=end_obj, path=purchase.path, direction=purchase.direction, price=purchase.price, expires_at=timezone.now()+timedelta(hours=6), status='ACTIVE')
@@ -215,53 +215,65 @@ def wallet_view(request):
     return render(request, 'tickets/wallet_view.html', {
         'balance': wallet.balance, 'message': message})
 
+def scanner_page(request, message, error):
+    if request.user.is_staff:
+        tickets = Ticket.objects.filter(status__in=['ACTIVE', 'IN_USE'])
+    else:
+        tickets = Ticket.objects.filter(user=request.user, status__in=['ACTIVE', 'IN_USE'])
+    return render(request, 'tickets/scanner.html', {
+        'tickets': tickets, 'message': message, 'error': error})
+
 @login_required
 def scanner_view(request):
-    return render(request, 'tickets/scanner.html', {})
+    error = ''
+    message = ''
+    if request.method == 'POST':
+        ticket_id = request.POST.get("ticket_id")
+        action = request.GET.get("action", "toggle")
+        try:
+            ticket = Ticket.objects.get(id=ticket_id)
+        except Ticket.DoesNotExist:
+            error = 'Invalid Ticket ID'
+            return scanner_page(request, message, error)
+        if not request.user.is_staff and ticket.user.id != request.user.id:
+            error = 'Permission denied'
+            return scanner_page(request, message, error)
+        if action == 'enter':
+            if ticket.status == 'ACTIVE':
+                if not get_service_status():
+                    error = "Metro service is disabled, so cannot enter metro"
+                    return scanner_page(request, message, error)
+                # validation if line is open for use
+                curr_line = ""
+                for l in ticket.direction:
+                    if l == curr_line:
+                        continue
+                    curr_line = l
+                    try:
+                        ln = Line.objects.get(name=l)
+                        if not ln.enable:
+                            error = f"Line {l} is not operative, so cannot use this ticket now."
+                            return scanner_page(request, message, error)
+                    except Exception:
+                        error = 'Invalid path selected.'
+                        return scanner_page(request, message, error)
 
-@login_required
-def scan_ticket_api(request, ticket_id):
-    try:
-        ticket = Ticket.objects.get(id=ticket_id)
-    except Ticket.DoesNotExist:
-        return JsonResponse({'error': 'Invalid Ticket ID'})
-    #ticket = get_object_or_404(Ticket, id=ticket_id)
-    if not request.user.is_staff and ticket.user.id != request.user.id:
-        return JsonResponse({'error': 'Invalid Ticket ID'})
-    action = request.GET.get('action','toggle')
-    if action == 'enter':
-        if ticket.status == 'ACTIVE':
-
-            if not get_service_status():
-                return JsonResponse({'error': "Metro service is disabled, so cannot enter metro"})
-            # validation if line is open for use
-            curr_line = ""
-            for l in ticket.direction:
-                if l == curr_line:
-                    continue
-                curr_line = l
-                try:
-                    ln = Line.objects.get(name=l)
-                    if not ln.enable:
-                        return JsonResponse({'error': f"Line {l} is not operative, so cannot buy this ticket."})
-                except Exception:
-                    return JsonResponse({'error': 'Invalid path selected.'})
- 
-            ticket.status = 'IN_USE'
-            ticket.started_at = timezone.now()
-        else:
-            return JsonResponse({'error': 'Ticket must be in ACTIVE state to enter'})
-    elif action == 'exit':
-        if ticket.status == 'IN_USE':
-            ticket.status = 'USED'
-            ticket.ended_at = timezone.now()
-        else:
-            return JsonResponse({'error': 'Ticket must be in IN_USE state to exit'})
-    else:
-        ticket.status = 'USED' if ticket.status != 'USED' else 'ACTIVE'
-    ticket.save()
-    return JsonResponse({'status': ticket.status, 'ticket_id': ticket.id})
-
+                ticket.status = 'IN_USE'
+                ticket.started_at = timezone.now()
+                message = f"Ticket with ID #{ticket.id} entered metro station"
+            else:
+                error = 'Ticket must be in ACTIVE state to enter'
+                return scanner_page(request, message, error)
+        elif action == 'exit':
+            if ticket.status == 'IN_USE':
+                ticket.status = 'USED'
+                ticket.ended_at = timezone.now()
+                message = f"Ticket with ID #{ticket.id} exited metro station"
+            else:
+                error = 'Ticket must be in IN_USE state to exit'
+                return scanner_page(request, message, error)
+        ticket.save()
+    return scanner_page(request, message, error)
 
 @login_required
 def station_list(request):

@@ -5,8 +5,8 @@
 <h2>My Tickets</h2>
 <ul>
   {% for t in tickets %}
-    <li>Ticket {{ t.id }}: {{ t.start.name }} -> {{ t.end.name }} | Price: {{ t.price }} | Status: {{ t.status }}<br>
-    Path: {{ t.path }}<br>
+    <li>Ticket {{ t.id }}: {{ t.start.name }} → {{ t.end.name }} | Price: {{ t.price }} | Status: {{ t.status }}<br>
+    Stations: {{ t.path }}<br>
     Direction: {{ t.direction }}</li>
   {% empty %}
     <li>No tickets yet.</li>
