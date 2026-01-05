@@ -12,9 +12,13 @@
   </select>
   <button type='submit' class="primary-btn">List Line</button>
 </form>
-<h2> List of Station for Line {{ ln }}</h2>
+<br>
 <ul>
   {% for s in stations %}
+    {% if forloop.first %}
+        <h3> List of Station for Line: {{ ln }}</h3>
+        <br>
+    {% endif %}
     <li>{{ s.station.name }}: {{ s.position }}</li>
   {% endfor %}
 </ul>
