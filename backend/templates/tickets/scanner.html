@@ -3,10 +3,18 @@
 <main class="page">
 <div class="full-card">
 <h2>Ticket Scanner</h2>
-<p>Enter ticket id to mark enter/exit.</p>
-<input id='ticket_id' placeholder='Ticket id' />
-<button class="view-btn" onclick='enter()'>Enter</button>
-<button class="view-btn" onclick='exit()'>Exit</button>
+{% if error %}<p style='color:rgb(255, 0, 0)'>{{ error }}</p>{% endif %}
+{% if message %}<p style='color:rgb(0, 42, 255)'>{{ message }}</p>{% endif %}
+<form method='post'>{% csrf_token %}
+<p>Select ticket to mark enter/exit.</p>
+  <select id='ticket_id' name='ticket_id'>
+    {% for t in tickets %}
+    <option value='{{ t.id }}'>{{ t.id }}: {{ t.start.name }} → {{ t.end.name }}</option>
+    {% endfor %}
+  </select>
+<button class="view-btn" formaction="/scanner/?action=enter">Enter</button>
+<button class="view-btn" formaction="/scanner/?action=exit">Exit</button>
+</form>
 <div id='result'></div>
 <script>
 function api(action){

@@ -8,6 +8,8 @@
 <form method='post'>{% csrf_token %}
   <button class="logout-btn" type='submit' formaction="/start-service/" {{ start }}>Start Service</button>
   <button class="logout-btn" type='submit' formaction="/stop-service/" {{ stop }}>Stop Service</button>
+  <br>
+  <br>
   <label>Select Line</label>
   <select name='en_line'>
     {% for l in enable_lines %}
