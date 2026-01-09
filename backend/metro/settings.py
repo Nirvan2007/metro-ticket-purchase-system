@@ -109,14 +109,22 @@ DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER or 'webmast
 ACCOUNT_VERIFICATION_FLOW = "none"
 SOCIALACCOUNT_EMAIL_VERIFICATION = 'none'
 SOCIALACCOUNT_PROVIDERS = {
-    'google': {
-        'APP': {
-            'client_id': os.getenv('SOCIAL_AUTH_GOOGLECLIENT_ID', ''),
-            'secret': os.getenv('SOCIAL_AUTH_GOOGLECLIENT_SECRET', ''),
-            'key': ''
+    "google": {
+        "APP": {
+            "client_id": os.getenv("SOCIAL_AUTH_GOOGLECLIENT_ID", ""),
+            "secret": os.getenv("SOCIAL_AUTH_GOOGLECLIENT_SECRET", ""),
+            "key": ""
+        },
+        "SCOPE": [
+            "profile",
+            "email"
+        ],
+        "AUTH_PARAMS": {
+            "access_type": "online"
         }
     }
 }
+
 
 CSRF_TRUSTED_ORIGINS = ["https://metro.teztravels.com"]
 
