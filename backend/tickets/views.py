@@ -90,13 +90,7 @@ def buy_ticket(request):
         )
 
         try:
-            send_email(
-                {
-                    "to": request.user.email,
-                    "subject": subject,
-                    "content": body
-                }
-            )
+            send_email(request.user, subject, body)
         except Exception as e:
             print("Unable to send email:", str(e))
 
@@ -130,13 +124,7 @@ def resend_otp(request, purchase_id):
     )
 
     try:
-        send_email(
-            {
-                "to": request.user.email,
-                "subject": subject,
-                "content": body
-            }
-        )
+        send_email(request.user, subject, body)
     except Exception as e:
         print("Unable to send email:", str(e))
     form = VerifyOTPForm()
@@ -171,11 +159,7 @@ def verify_otp(request, purchase_id):
                 subject = 'Metro Ticket Purchased'
                 body = f'Your ticket (ID: <b>{ticket.id}</b>) from <b>{ticket.start.name}</b> to <b>{ticket.end.name}</b> has been issued. Price: <b>{ticket.price}</b>.<br>Please follow following direction:<br>Path: <b>{path}</b><br>Direction: <b>{direction}</b>'
                 try:
-                    send_email({
-                        'to': request.user.email,
-                        'subject': subject,
-                        'content': body
-                    })
+                    send_email(request.user, subject, body)
                 except Exception as e:
                     print("Unable to send email:", str(e))
                 purchase.delete()
