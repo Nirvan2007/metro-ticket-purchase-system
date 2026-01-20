@@ -189,6 +189,8 @@ def wallet_view(request):
     if request.method == 'POST':
         try:
             money = int(request.POST.get("money", 0))
+            if money <= 0:
+                raise Exception("Invalid amount")
         except Exception:
             return render(request, 'tickets/wallet_view.html', {
                 'balance': wallet.balance,

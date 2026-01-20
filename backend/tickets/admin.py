@@ -25,12 +25,7 @@ def add_line(request):
 
     if request.method == 'POST':
         line_name = request.POST.get('line_name').strip()
-        flag = 1
-        for i in line_name:
-            if not i.isspace():
-                flag = 0
-                break
-        if not line_name or flag:
+        if not line_name:
             error = 'No Line Name Given'
             return render(request, 'tickets/add_line.html', {
                 'error': error
@@ -59,12 +54,7 @@ def add_station(request):
     if request.method == 'POST':
         line = request.POST.get('line')
         station = request.POST.get('station').strip()
-        flag = 1
-        for i in station:
-            if not i.isspace():
-                flag = 0
-                break
-        if not station or flag:
+        if not station:
             return render(request, 'tickets/add_station.html', {
                 'lines': lines,
                 'error': 'No Station Name Given.'
